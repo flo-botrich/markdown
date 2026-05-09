@@ -122,7 +122,6 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="file_not_in_current_folder_do_copy__appspecific">Su documentu no est in sa cartella atuale. Lu cheres copiare in sa cartella atuale? Custu at a subraiscrìere cale si siat documentu cun su matessi nùmene.</string>
     <string name="files_and_folders">Documentos e cartellas</string>
     <string name="document_browser">Esploradore de documentos</string>
-    <string name="file_browser">Esploradore de documentos</string>
     <string name="set_due_date">Imposta sa data de iscadèntzia</string>
     <string name="insert_replace_date">Inserta sa data</string>
     <string name="create_note" needed="false">Crea una nota</string>
@@ -138,12 +137,9 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="main_view">Vista printzipale</string>
     <string name="overall_theme_used_in_app">Su tema generale impreadu in s\'aplicatzione</string>
     <string name="remember_last_directory">Ammenta s\'ùrtima cartella</string>
-    <string name="syntax_highlighting">Evidentziatzione de sa sintassi</string>
-    <string name="dynamic_highlighting">Evidentziatzione dinàmica</string>
     <string name="highlighting_delay">Ritardu in s\'evidentziatzione</string>
     <string name="highlighting_delay_lower_value_more_battery_drain_description__appspecific">Ritardu in millisegundos pro s\'agiornamentu de s\'evidentziatzione. Unu valore prus bassu at a evidentziare prus in presse, ma at a consumire de prus sa bateria tua e diat pòdere rallentare s\'aplicatzione in sos dispositivos prus betzos.</string>
     <string name="highlighting_enabled_or_not__appspecific">Controlla si su testu insertadu diat dèpere èssere evidentziadu o nono</string>
-    <string name="dynamic_highlighting_effect">S\'evidentziatzione dinàmica megiorat su rendimentu. Diat pòdere causare sa renderizatzione de artefatos.</string>
     <string name="control_font_size_in_editor">Controlla sa mannària de su caràtere impreadu in s\'editore</string>
     <string name="textactions_show_useful_actions_description__appspecific">Ammustra una barra cun butones discansosos in suta. Custas atziones de su testu mudant su testu o faghent partire un\'atzione basada in subra de su testu.</string>
     <string name="load_last_opened_folder_at_startup">Càrriga s\'ùrtima cartella aberta a s\'allughìngiu</string>
@@ -220,6 +216,7 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="clipboard">Punta de billete</string>
     <string name="select_existing_document">Ischerta unu documentu esistente</string>
     <string name="select_create_document">Seletziona o crea unu documentu</string>
+    <string name="select_create_folder">Seletziona o crea una cartella</string>
     <string name="open_source_licenses">Litzèntzias a mitza aberta</string>
     <string name="rate_this_app">Vàluta custa aplicatzione</string>
     <string name="translate">Tradui</string>
@@ -305,8 +302,6 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="black">Nieddu</string>
     <string name="white">Biancu</string>
     <string name="view">Abbàida</string>
-    <string name="view_mode">Modalidade de visualizatzione</string>
-    <string name="edit_mode">Modalidade de modìfica</string>
     <string name="mount_storage">Monta sa memòria de archiviatzione</string>
     <string name="application_needs_access_to_storage_mount_it">Pro atzèdere a custa memòria de archiviatzione est netzessàriu unu permissu. Monta sa memòria pro frunire s\'atzessu. Cunfirma custu diàlogu pro otènnere una ventanedda. Ischerta sa memòria in ie e incarca pro ischertare.</string>
     <string name="share_into">Cumpartzi cun</string>
@@ -319,8 +314,6 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="selected_file_may_be_a_textfile_want_to_open_in_editor">Su documentu ischertadu diat pòdere èssere unu documentu in testu simpre. Lu cheres abèrrere in s\'editore, o in un\'àtera aplicatzione?\n\nNon proves a abèrrere documentos binàrios. Si non ses seguru, aberi·lu cun un\'àtera aplicatzione.</string>
     <string name="list_in_recent_files">Allista in sos documentos reghentes</string>
     <string name="reload">Torra a carrigare</string>
-    <string name="wrap_words">Acontzu de sas lìnias</string>
-    <string name="line_numbers">Nùmeros de lìnia</string>
     <string name="soft_break_if_not_fit_to_width_else_enable_horizontal_scrolling">Mandat a suta su testu si cussu barigat sa mannària de s\'ischermu. Si nono abìlitat s\'iscurrimentu orizontale.</string>
     <string name="recursive_search_in_location">Chirca ricursiva in %s</string>
     <string name="always_open_with_this_app">Aberi semper cun custa aplicatzione</string>
@@ -335,6 +328,7 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="current">Atuale</string>
     <string name="record_audio">Registra s\'àudio</string>
     <string name="attach">Allega</string>
+    <string name="attachment">Alligadu</string>
     <string name="copy_file">Còpia su documentu</string>
     <string name="page">Pàgina</string>
     <string name="experimental_features">Funtzionalidades isperimentales</string>
@@ -398,7 +392,6 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="file_description_format">Formadu de descritzione de su documentu</string>
     <string name="file_description_format_dialog">Formadu pro sa descritzione in suta de cada documentu in s\'esploradore de documentos. Sighit sas règulas SimpleDateFormat de Android, cun s\'annànghida de FS pro ammustrare sa mannària de sos documentos.Lassa·lu bòidu pro impreare su formadu predefinidu pro sa limba tua..\n\nEsèmpiu de intrada:\nFS yyyy MMM dd hh:mm:ss aa\nFormadu de essida:\n30KB 2020 Mar 20 11:24:52 PM</string>
     <string name="loading_default_value">Carrighende su valore predefinidu</string>
-    <string name="file_settings">Impostatziones de su documentu</string>
     <string name="search_and_replace">Chirca / Remplasa</string>
     <string name="search_for">Chirca</string>
     <string name="replace_with">Remplasa cun</string>
@@ -460,8 +453,6 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="advanced_filtering_help"><![CDATA[<small><a href="https://www.github.com/gsantner/markor/discussions/1940">Sintassi de filtràgiu avantzada</a></small>]]></string>
     <string name="filter">Filtru</string>
     <string name="text_case">Majùscula/minùscula</string>
-    <string name="toggle_case">Càmbia majùsculas e minùsculas (a es.: Mannària-&gt;MANNÀRIA-&gt;mannària)</string>
-    <string name="switch_case">Fùrria sas minùsculas e sas majùsculas (a es.: NoTa-&gt;nOtA)</string>
-    <string name="capitalize_words">Paràulas cun sas initziales majùsculas (a es.: una nota-&gt;Una Nota)</string>
-    <string name="capitalize_sentences">Frases cun sas initziales majùsculas (a es.: nota-&gt;Nota)</string>
+    <string name="use_tab_to_indent">Indenta lìnias cun sa tecla TAB</string>
+    <string name="folder_local">Cartella locale</string>
 </resources>

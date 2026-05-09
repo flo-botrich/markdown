@@ -46,6 +46,7 @@ import com.vladsch.flexmark.util.options.MutableDataSet;
 
 import net.gsantner.markor.R;
 import net.gsantner.markor.format.TextConverterBase;
+import net.gsantner.markor.model.AppSettings;
 import net.gsantner.opoc.util.GsContextUtils;
 
 import java.io.File;
@@ -67,25 +68,9 @@ public class MarkdownTextConverter extends TextConverterBase {
     //## Extensions
     //########################
     public static final String EXT_MARKDOWN__TXT = ".txt";
-    public static final String EXT_MARKDOWN__MD_TXT = ".md.txt";
-    public static final String EXT_MARKDOWN__MD = ".md";
-    public static final String EXT_MARKDOWN__MARKDOWN = ".markdown";
-    public static final String EXT_MARKDOWN__MKD = ".mkd";
-    public static final String EXT_MARKDOWN__MDOWN = ".mdown";
-    public static final String EXT_MARKDOWN__MKDN = ".mkdn";
-    public static final String EXT_MARKDOWN__MDWN = ".mdwn";
-    public static final String EXT_MARKDOWN__MDX = ".mdx";
-    public static final String EXT_MARKDOWN__TEXT = ".text";
-    public static final String EXT_MARKDOWN__RMD = ".rmd";
 
     public static final String MD_EXTENSIONS_PATTERN_LIST = "((md)|(markdown)|(mkd)|(mdown)|(mkdn)|(txt)|(mdwn)|(mdx)|(text)|(rmd))";
     public static final Pattern PATTERN_HAS_FILE_EXTENSION_FOR_THIS_FORMAT = Pattern.compile("((?i).*\\." + MD_EXTENSIONS_PATTERN_LIST + "$)");
-    public static final Pattern MD_EXTENSION_PATTERN = Pattern.compile("((?i)\\." + MD_EXTENSIONS_PATTERN_LIST + "$)");
-    public static final String[] MD_EXTENSIONS = new String[]{
-            EXT_MARKDOWN__MD, EXT_MARKDOWN__MARKDOWN, EXT_MARKDOWN__MKD, EXT_MARKDOWN__MDOWN,
-            EXT_MARKDOWN__MKDN, EXT_MARKDOWN__TXT, EXT_MARKDOWN__MDWN, EXT_MARKDOWN__TEXT,
-            EXT_MARKDOWN__RMD, EXT_MARKDOWN__MD_TXT, EXT_MARKDOWN__MDX
-    };
 
     //########################
     //## Injected CSS / JS / HTML
@@ -94,6 +79,7 @@ public class MarkdownTextConverter extends TextConverterBase {
     public static final String CSS_HEADER_UNDERLINE = CSS_S + " .header_no_underline { text-decoration: none; color: " + TOKEN_BW_INVERSE_OF_THEME + "; } h1 < a.header_no_underline { border-bottom: 2px solid #eaecef; } " + CSS_E;
     public static final String CSS_H1_H2_UNDERLINE = CSS_S + " h1,h2 { border-bottom: 2px solid " + TOKEN_BW_INVERSE_OF_THEME_HEADER_UNDERLINE + "; } " + CSS_E;
     public static final String CSS_BLOCKQUOTE_VERTICAL_LINE = CSS_S + "blockquote{padding:0px 14px;border-" + TOKEN_TEXT_DIRECTION + ":3.5px solid #dddddd;margin:4px 0}" + CSS_E;
+    public static final String CSS_INLINE_CODE = CSS_S + "p > code { background-color: #D2D2D880; padding: 1.5px 3px; border-radius: 4px; }" + CSS_E;
     public static final String CSS_LIST_TASK_NO_BULLET = CSS_S + ".task-list-item { list-style-type:none; text-indent: -1.4em; } li.task-list-item > pre, li.task-list-item > ul > li { text-indent: 0pt; }" + CSS_E;
     public static final String CSS_GITLAB_VIDEO_CAPTION = CSS_S + ".video-container > p { margin: 0; }" + CSS_E;
     public static final String CSS_LINK_SOFT_WRAP_AUTOBREAK_LINES = CSS_S + "p > a { word-break:break-all; }" + CSS_E;
@@ -155,7 +141,7 @@ public class MarkdownTextConverter extends TextConverterBase {
             TypographicExtension.create(),        // https://github.com/vsch/flexmark-java/wiki/Typographic-Extension
             GitLabExtension.create(),             // https://github.com/vsch/flexmark-java/wiki/Extensions#gitlab-flavoured-markdown
             AdmonitionExtension.create(),         // https://github.com/vsch/flexmark-java/wiki/Extensions#admonition
-            FootnoteExtension.create(),            // https://github.com/vsch/flexmark-java/wiki/Footnotes-Extension#overview
+            FootnoteExtension.create(),           // https://github.com/vsch/flexmark-java/wiki/Footnotes-Extension#overview
             LineNumberIdExtension.create()
     );
     public static final Parser flexmarkParser = Parser.builder().extensions(flexmarkExtensions).build();
@@ -164,7 +150,7 @@ public class MarkdownTextConverter extends TextConverterBase {
     //########################
     //## Others
     //########################
-    private static String toDashChars = " -_"; // See HtmlRenderer.HEADER_ID_GENERATOR_TO_DASH_CHARS.getFrom(document)
+    // private static final String toDashChars = " -_"; // See HtmlRenderer.HEADER_ID_GENERATOR_TO_DASH_CHARS.getFrom(document)
     private static final Pattern linkPattern = Pattern.compile("\\[(.*?)\\]\\((.*?)(\\s+\".*\")?\\)");
 
 
@@ -173,6 +159,7 @@ public class MarkdownTextConverter extends TextConverterBase {
     //########################
     @Override
     public String convertMarkup(String markup, Context context, boolean lightMode, boolean enableLineNumbers, File file) {
+        final AppSettings as = AppSettings.get(context);
         String converted, onLoadJs = "", head = "";
         final MutableDataSet options = new MutableDataSet();
 
@@ -205,7 +192,13 @@ public class MarkdownTextConverter extends TextConverterBase {
 
         head += CSS_BODY;
         // Prepare head and javascript calls
-        head += CSS_HEADER_UNDERLINE + CSS_H1_H2_UNDERLINE + CSS_BLOCKQUOTE_VERTICAL_LINE + CSS_GITLAB_VIDEO_CAPTION + CSS_LIST_TASK_NO_BULLET + CSS_LINK_SOFT_WRAP_AUTOBREAK_LINES;
+        head += CSS_HEADER_UNDERLINE
+                + CSS_H1_H2_UNDERLINE
+                + CSS_BLOCKQUOTE_VERTICAL_LINE
+                + CSS_INLINE_CODE
+                + CSS_GITLAB_VIDEO_CAPTION
+                + CSS_LIST_TASK_NO_BULLET
+                + CSS_LINK_SOFT_WRAP_AUTOBREAK_LINES;
 
         // Presentations
         final boolean enablePresentationBeamer = markup.contains("\nclass:beamer") || markup.contains("\nclass: beamer");
@@ -215,7 +208,7 @@ public class MarkdownTextConverter extends TextConverterBase {
 
         // Front matter
         String fmaText = "";
-        final List<String> fmaAllowedAttributes = _appSettings.getMarkdownShownYamlFrontMatterKeys();
+        final List<String> fmaAllowedAttributes = as.getMarkdownShownYamlFrontMatterKeys();
         Map<String, List<String>> fma = Collections.EMPTY_MAP;
         if (!enablePresentationBeamer && markup.startsWith("---")) {
             Matcher hasTokens = YAML_FRONTMATTER_TOKEN_PATTERN.matcher(markup);
@@ -234,7 +227,7 @@ public class MarkdownTextConverter extends TextConverterBase {
                     //noinspection StringConcatenationInLoop
                     fmaText += HTML_FRONTMATTER_ITEM_CONTAINER_S.replace("{{ attrName }}", attrName) + "{{ post." + attrName + " }}\n" + HTML_FRONTMATTER_ITEM_CONTAINER_E + "\n";
                 }
-                if (!fmaText.equals("")) {
+                if (!fmaText.isEmpty()) {
                     head += CSS_FRONTMATTER;
                 }
             }
@@ -244,7 +237,7 @@ public class MarkdownTextConverter extends TextConverterBase {
         final String parentFolderName = file != null && file.getParentFile() != null && !TextUtils.isEmpty(file.getParentFile().getName()) ? file.getParentFile().getName() : "";
         final boolean isInBlogFolder = parentFolderName.equals("_posts") || parentFolderName.equals("blog") || parentFolderName.equals("post");
         if (!enablePresentationBeamer) {
-            if (!markup.contains("[TOC]: #") && (isInBlogFolder || _appSettings.isMarkdownTableOfContentsEnabled()) && (markup.contains("#") || markup.contains("<h"))) {
+            if (!markup.contains("[TOC]: #") && (isInBlogFolder || as.isMarkdownTableOfContentsEnabled()) && (markup.contains("#") || markup.contains("<h"))) {
                 final String tocToken = "[TOC]: # ''\n  \n";
                 if (markup.startsWith("---") && !markup.contains("[TOC]")) {
                     // 1st group: match opening YAML block delimiter ('---'), optionally followed by whitespace, excluding newline
@@ -259,7 +252,7 @@ public class MarkdownTextConverter extends TextConverterBase {
             }
 
             head += CSS_TOC_STYLE;
-            options.set(TocExtension.LEVELS, TocOptions.getLevels(_appSettings.getMarkdownTableOfContentLevels()))
+            options.set(TocExtension.LEVELS, TocOptions.getLevels(as.getMarkdownTableOfContentLevels()))
                     .set(TocExtension.TITLE, context.getString(R.string.table_of_contents))
                     .set(TocExtension.DIV_CLASS, "markor-table-of-contents toc")
                     .set(TocExtension.LIST_CLASS, "markor-table-of-contents-list")
@@ -268,7 +261,7 @@ public class MarkdownTextConverter extends TextConverterBase {
 
         // Enable Math / KaTex
         if (markup.contains("$")) {
-            if (_appSettings.isMarkdownMathEnabled()) {
+            if (as.isMarkdownMathEnabled()) {
                 head += HTML_KATEX_INCLUDE;
                 head += CSS_KATEX;
             } else {
@@ -276,12 +269,10 @@ public class MarkdownTextConverter extends TextConverterBase {
             }
         }
 
-        // Enable View (block) code syntax highlighting
+        // Enable code block (view mode) syntax highlighting
         if (markup.contains("```")) {
-            head += getViewHlPrismIncludes(GsContextUtils.instance.isDarkModeEnabled(context) ? "-tomorrow" : "", enableLineNumbers);
-            if (_appSettings.getDocumentWrapState(file.getAbsolutePath())) {
-                onLoadJs += "wrapCodeBlockWords();";
-            }
+            head += getViewHlPrismIncludes(GsContextUtils.instance.isDarkModeEnabled(context) ? "-tomorrow" : "");
+            onLoadJs += "usePrism('" + (file == null ? "false" : as.getDocumentWrapState(file.getAbsolutePath())) + "', '" + enableLineNumbers + "');";
         }
 
         // Enable Mermaid
@@ -304,7 +295,7 @@ public class MarkdownTextConverter extends TextConverterBase {
         // Notable: They use a home brewed syntax for referencing attachments: @attachment/f.png = ../attachements/f.jpg -- https://github.com/gsantner/markor/issues/1252
         markup = markup.replace("](@attachment/", "](../attachements/");
 
-        if (_appSettings.isMarkdownNewlineNewparagraphEnabled()) {
+        if (as.isMarkdownNewlineNewparagraphEnabled()) {
             markup = markup.replace("\n", "  \n");
         }
 
@@ -344,11 +335,6 @@ public class MarkdownTextConverter extends TextConverterBase {
             }
         }
 
-        if (enableLineNumbers) {
-            // For Prism line numbers plugin
-            onLoadJs += "enableLineNumbers(); adjustLineNumbers();";
-        }
-
         // Deliver result
         return putContentIntoTemplate(context, converted, lightMode, file, onLoadJs, head);
     }
@@ -382,26 +368,20 @@ public class MarkdownTextConverter extends TextConverterBase {
         return sb.toString();
     }
 
-    @SuppressWarnings({"StringConcatenationInsideStringBufferAppend"})
-    private String getViewHlPrismIncludes(final String theme, final boolean isLineNumbersEnabled) {
-        final StringBuilder sb = new StringBuilder(1000);
-        sb.append(CSS_PREFIX + "prism/themes/prism" + theme + ".min.css" + CSS_POSTFIX);
-        sb.append(CSS_PREFIX + "prism/style.css" + CSS_POSTFIX);
-        sb.append(CSS_PREFIX + "prism/plugins/toolbar/prism-toolbar.css" + CSS_POSTFIX);
+    private String getViewHlPrismIncludes(final String theme) {
 
-        sb.append(JS_PREFIX + "prism/prism.js" + JS_POSTFIX);
-        sb.append(JS_PREFIX + "prism/main.js" + JS_POSTFIX);
-        sb.append(JS_PREFIX + "prism/plugins/autoloader/prism-autoloader.min.js" + JS_POSTFIX);
-        sb.append(JS_PREFIX + "prism/plugins/toolbar/prism-toolbar.min.js" + JS_POSTFIX);
-        sb.append(JS_PREFIX + "prism/plugins/copy-to-clipboard/prism-copy-to-clipboard.js" + JS_POSTFIX);
-
-        if (isLineNumbersEnabled) {
-            sb.append(CSS_PREFIX + "prism/plugins/line-numbers/style.css" + CSS_POSTFIX);
-            sb.append(JS_PREFIX + "prism/plugins/line-numbers/prism-line-numbers.min.js" + JS_POSTFIX);
-            sb.append(JS_PREFIX + "prism/plugins/line-numbers/main.js" + JS_POSTFIX);
-        }
-
-        return sb.toString();
+        return CSS_PREFIX + "prism/themes/prism" + theme + ".min.css" + CSS_POSTFIX +
+                CSS_PREFIX + "prism/prism-markor.css" + CSS_POSTFIX +
+                CSS_PREFIX + "prism/plugins/toolbar/prism-toolbar.css" + CSS_POSTFIX +
+                JS_PREFIX + "prism/prism.js" + JS_POSTFIX +
+                JS_PREFIX + "prism/components.js" + JS_POSTFIX +
+                JS_PREFIX + "prism/prism-markor.js" + JS_POSTFIX +
+                JS_PREFIX + "prism/plugins/autoloader/prism-autoloader.min.js" + JS_POSTFIX +
+                JS_PREFIX + "prism/plugins/toolbar/prism-toolbar.min.js" + JS_POSTFIX +
+                JS_PREFIX + "prism/plugins/copy-to-clipboard/prism-copy-to-clipboard.min.js" + JS_POSTFIX +
+                CSS_PREFIX + "prism/plugins/line-numbers/prism-line-numbers-markor.css" + CSS_POSTFIX +
+                JS_PREFIX + "prism/plugins/line-numbers/prism-line-numbers.min.js" + JS_POSTFIX +
+                JS_PREFIX + "prism/plugins/line-numbers/prism-line-numbers-markor.js" + JS_POSTFIX;
     }
 
     @Override

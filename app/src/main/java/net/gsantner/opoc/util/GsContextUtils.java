@@ -58,7 +58,6 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
-import android.os.IBinder;
 import android.os.ParcelFileDescriptor;
 import android.os.SystemClock;
 import android.os.VibrationEffect;
@@ -91,7 +90,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
-import android.view.inputmethod.InputMethodManager;
 import android.webkit.MimeTypeMap;
 import android.webkit.WebView;
 import android.widget.ImageView;
@@ -123,6 +121,8 @@ import androidx.core.graphics.drawable.IconCompat;
 import androidx.core.os.ConfigurationCompat;
 import androidx.core.text.TextUtilsCompat;
 import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.documentfile.provider.DocumentFile;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.preference.PreferenceManager;
@@ -201,7 +201,7 @@ public class GsContextUtils {
     protected static String m_chooserTitle = "➥";
 
 
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //########################
     //## Resources
     //########################
@@ -289,11 +289,10 @@ public class GsContextUtils {
         return true;
     }
 
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //########################
     //## App & Device information
     //########################
-
     public static String getAndroidVersion() {
         return Build.VERSION.RELEASE + " (" + Build.VERSION.SDK_INT + ")";
     }
@@ -476,7 +475,7 @@ public class GsContextUtils {
      */
     public boolean isAppInstalled(final Context context, String appId) {
         try {
-            final PackageManager pm = context.getApplicationContext().getPackageManager();
+            final PackageManager pm = context.getPackageManager();
             pm.getPackageInfo(appId, PackageManager.GET_ACTIVITIES);
             return true;
         } catch (PackageManager.NameNotFoundException e) {
@@ -608,6 +607,17 @@ public class GsContextUtils {
                 + ((0.587 * Color.green(colorOnBottomInt))
                 + (0.114 * Color.blue(colorOnBottomInt)))));
     }
+
+    @ColorInt
+    public static int rgb(final int r, final int g, final int b) {
+        return argb(255, r, g, b);
+    }
+
+    @ColorInt
+    public static int argb(final int a, final int r, final int g, final int b) {
+        return (Math.max(0, Math.min(255, a)) << 24) | (Math.max(0, Math.min(255, r)) << 16) | (Math.max(0, Math.min(255, g)) << 8) | Math.max(0, Math.min(255, b));
+    }
+
 
     /**
      * Convert a html string to an android {@link Spanned} object
@@ -853,7 +863,7 @@ public class GsContextUtils {
         bitmap = bitmap.copy(bitmap.getConfig(), true);
         Canvas canvas = new Canvas(bitmap);
         Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        paint.setColor(Color.rgb(61, 61, 61));
+        paint.setColor(GsContextUtils.rgb(61, 61, 61));
         paint.setTextSize((int) (textSize * scale));
         paint.setShadowLayer(1f, 0f, 1f, Color.WHITE);
 
@@ -869,7 +879,11 @@ public class GsContextUtils {
     /**
      * Try to tint all {@link Menu}s {@link MenuItem}s with given color
      */
-    public void tintMenuItems(final Menu menu, final boolean recurse, @ColorInt final int iconColor) {
+    public void tintMenuItems(final @Nullable Menu menu, final boolean recurse, @ColorInt final int iconColor) {
+        if (menu == null) {
+            return;
+        }
+
         for (int i = 0; i < menu.size(); i++) {
             MenuItem item = menu.getItem(i);
             try {
@@ -1173,8 +1187,6 @@ public class GsContextUtils {
      * @param title   Title of the item
      */
     public void createLauncherDesktopShortcut(final Context context, final Intent intent, @DrawableRes final int iconRes, final String title) {
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         if (intent.getAction() == null) {
             intent.setAction(Intent.ACTION_VIEW);
         }
@@ -1564,6 +1576,20 @@ public class GsContextUtils {
         return (!TextUtils.isEmpty(path) && (f = new File(path)).canRead()) ? f : null;
     }
 
+    private static Uri getUriFromIntent(final Intent intent, final @Nullable Context context) {
+        Uri uri = intent.getData();
+
+        if (uri == null) {
+            uri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
+        }
+
+        if (uri == null && context != null) {
+            uri = new ShareCompat.IntentReader(context, intent).getStream();
+        }
+
+        return uri;
+    }
+
     /**
      * Try to force extract a absolute filepath from an intent
      *
@@ -1571,15 +1597,17 @@ public class GsContextUtils {
      * @return A file or null if extraction did not succeed
      */
     @SuppressWarnings({"ResultOfMethodCallIgnored", "ConstantConditions"})
-    public File extractFileFromIntent(final Context context, final Intent receivingIntent) {
+    public static File extractFileFromIntent(final Intent receivingIntent, final Context context) {
         final String action = receivingIntent.getAction();
         final String type = receivingIntent.getType();
         final String extPath = Environment.getExternalStorageDirectory().getAbsolutePath();
+        final Uri fileUri = getUriFromIntent(receivingIntent, context);
+
         String tmps;
         String fileStr;
         File result = null;
 
-        if ((Intent.ACTION_VIEW.equals(action) || Intent.ACTION_EDIT.equals(action)) || Intent.ACTION_SEND.equals(action)) {
+        if (Intent.ACTION_VIEW.equals(action) || Intent.ACTION_EDIT.equals(action) || Intent.ACTION_SEND.equals(action) || Intent.ACTION_SEND_MULTIPLE.equals(action)) {
 
             // Màrkor, SimpleMobileTools FileManager
             if (receivingIntent.hasExtra((tmps = EXTRA_FILEPATH))) {
@@ -1587,8 +1615,6 @@ public class GsContextUtils {
             }
 
             // Analyze data/Uri
-            Uri fileUri = receivingIntent.getData();
-            fileUri = (fileUri != null ? fileUri : receivingIntent.getParcelableExtra(Intent.EXTRA_STREAM));
             if (result == null && fileUri != null && (fileStr = fileUri.toString()) != null) {
                 // Uri contains file
                 if (fileStr.startsWith("file://")) {
@@ -1653,7 +1679,6 @@ public class GsContextUtils {
                 }
             }
 
-            fileUri = receivingIntent.getParcelableExtra(Intent.EXTRA_STREAM);
             if (result == null && fileUri != null && !TextUtils.isEmpty(tmps = fileUri.getPath()) && tmps.startsWith("/")) {
                 result = checkPath(tmps);
             }
@@ -1673,15 +1698,14 @@ public class GsContextUtils {
         if (result == null) {
             try {
                 // Try detect content file & filename in Intent
-                Uri uri = new ShareCompat.IntentReader(context, receivingIntent).getStream();
-                uri = (uri != null ? uri : receivingIntent.getData());
+
                 final String[] sarr = contentColumnData(context, receivingIntent, OpenableColumns.DISPLAY_NAME);
-                tmps = sarr != null && !TextUtils.isEmpty(sarr[0]) ? sarr[0] : uri.getLastPathSegment();
+                tmps = sarr != null && !TextUtils.isEmpty(sarr[0]) ? sarr[0] : fileUri.getLastPathSegment();
 
                 // Proxy file to app-private storage (= java.io.File)
                 File f = new File(context.getCacheDir(), CONTENT_RESOLVER_FILE_PROXY_SEGMENT + "/" + tmps);
                 f.getParentFile().mkdirs();
-                byte[] data = GsFileUtils.readCloseBinaryStream(context.getContentResolver().openInputStream(uri));
+                byte[] data = GsFileUtils.readCloseBinaryStream(context.getContentResolver().openInputStream(fileUri));
                 GsFileUtils.writeFile(f, data, null);
                 f.setReadable(true);
                 f.setWritable(true);
@@ -1694,11 +1718,12 @@ public class GsContextUtils {
     }
 
     public static String[] contentColumnData(final Context context, final Intent intent, final String... columns) {
+        final Uri uri = getUriFromIntent(intent, context);
         final String[] out = (new String[columns.length]);
         final int INVALID = -1;
         Cursor cursor;
         try {
-            cursor = context.getContentResolver().query(intent.getData(), columns, null, null, null);
+            cursor = context.getContentResolver().query(uri, columns, null, null, null);
         } catch (Exception ignored) {
             cursor = null;
         }
@@ -1739,11 +1764,6 @@ public class GsContextUtils {
         } catch (Exception ignored) {
         }
         return false;
-    }
-
-    public String extractFileFromIntentStr(final Context context, final Intent receivingIntent) {
-        File f = extractFileFromIntent(context, receivingIntent);
-        return f != null ? f.getAbsolutePath() : null;
     }
 
     /**
@@ -1829,7 +1849,7 @@ public class GsContextUtils {
 
                     // Try to grab via file extraction method
                     intent.setAction(Intent.ACTION_VIEW);
-                    picturePath = picturePath != null ? picturePath : extractFileFromIntentStr(context, intent);
+                    picturePath = picturePath != null ? picturePath : GsFileUtils.getPath(extractFileFromIntent(intent, context));
 
                     // Retrieve image from file descriptor / Cloud, e.g.: Google Drive, Picasa
                     if (picturePath == null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
@@ -2047,7 +2067,7 @@ public class GsContextUtils {
             // and launch the desired Url with CustomTabsIntent.launchUrl()
             CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
             builder.setToolbarColor(ContextCompat.getColor(context, getResId(context, GsContextUtils.ResType.COLOR, "primary")));
-            builder.setSecondaryToolbarColor(ContextCompat.getColor(context, getResId(context, GsContextUtils.ResType.COLOR, "primary_dark")));
+            builder.setSecondaryToolbarColor(ContextCompat.getColor(context, getResId(context, GsContextUtils.ResType.COLOR, "dark__background")));
             builder.addDefaultShareMenuItem();
             CustomTabsIntent customTabsIntent = builder.build();
             enableChromeCustomTabsForOtherBrowsers(context, customTabsIntent.intent);
@@ -2529,18 +2549,32 @@ public class GsContextUtils {
     }
 
     public <T extends GsContextUtils> T showSoftKeyboard(final Activity activity, final boolean show, final View... view) {
-        if (activity != null) {
-            final InputMethodManager imm = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
-            final View focus = (view != null && view.length > 0) ? view[0] : activity.getCurrentFocus();
-            final IBinder token = focus != null ? focus.getWindowToken() : null;
-            if (imm != null && focus != null) {
-                if (show) {
-                    imm.showSoftInput(focus, InputMethodManager.SHOW_IMPLICIT);
-                } else if (token != null) {
-                    imm.hideSoftInputFromWindow(token, InputMethodManager.HIDE_NOT_ALWAYS);
-                }
+        if (activity == null) {
+            return thisp();
+        }
+
+        final Window win = activity.getWindow();
+        if (win == null) {
+            return thisp();
+        }
+
+        View focus = (view != null && view.length > 0) ? view[0] : activity.getCurrentFocus();
+
+        if (focus == null) {
+            focus = win.getDecorView();
+        }
+
+        if (focus != null) {
+            final WindowInsetsControllerCompat ctrl = new WindowInsetsControllerCompat(win, focus);
+            if (show) {
+                focus.requestFocus();
+                ctrl.show(WindowInsetsCompat.Type.ime());
+            } else {
+                focus.clearFocus();
+                ctrl.hide(WindowInsetsCompat.Type.ime());
             }
         }
+
         return thisp();
     }
 
@@ -2910,26 +2944,29 @@ public class GsContextUtils {
     }
 
     public static boolean fadeInOut(final View in, final View out, final boolean animate) {
-        // Do nothing if we are already in the correct state
-        if (in.getVisibility() == View.VISIBLE && out.getVisibility() == View.GONE) {
+        if (in == null || out == null) {
             return false;
         }
 
-        in.setVisibility(View.VISIBLE);
+        // Do nothing if we are already in the correct state
+        if (in.getVisibility() == View.VISIBLE && out.getVisibility() == View.INVISIBLE) {
+            return false;
+        }
+
         if (animate) {
-            in.setAlpha(0);
-            in.animate().alpha(1).setDuration(200).setListener(null);
             out.animate()
-                    .alpha(0)
-                    .setDuration(200)
-                    .setListener(new AnimatorListenerAdapter() {
-                        @Override
-                        public void onAnimationEnd(Animator animation) {
-                            out.setVisibility(View.GONE);
-                        }
-                    });
+                    .alpha(0f)
+                    .setDuration(400)
+                    .withEndAction(() -> out.setVisibility(View.INVISIBLE));
+
+            in.setAlpha(0f);
+            in.setVisibility(View.VISIBLE);
+            in.animate()
+                    .alpha(1f)
+                    .setDuration(400);
         } else {
-            out.setVisibility(View.GONE);
+            out.setVisibility(View.INVISIBLE);
+            in.setVisibility(View.VISIBLE);
         }
 
         return true;

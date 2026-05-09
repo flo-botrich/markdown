@@ -122,7 +122,6 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="file_not_in_current_folder_do_copy__appspecific">Het bestand is niet in de huidige map geplaatst. Wilt u het kopiëren naar de huidige map? Dit overschrijft elk bestaand bestand met dezelfde naam.</string>
     <string name="files_and_folders">Bestanden en mappen</string>
     <string name="document_browser">Document verkenner</string>
-    <string name="file_browser">Bestandsbrowser</string>
     <string name="set_due_date">Vervaldatum instellen</string>
     <string name="insert_replace_date">Insert date</string>
     <string name="create_note" needed="false">Maak notitie</string>
@@ -138,12 +137,9 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="main_view">Hoofdweergave</string>
     <string name="overall_theme_used_in_app">Het algemene thema gebruikt in de app</string>
     <string name="remember_last_directory">Herinner laatste folder</string>
-    <string name="syntax_highlighting">Syntaxis markering</string>
-    <string name="dynamic_highlighting">Dynamische markering</string>
     <string name="highlighting_delay">Gemarkeerde vertraging</string>
     <string name="highlighting_delay_lower_value_more_battery_drain_description__appspecific">Vertraging in milliseconden voor het markeren van verversing. Een lagere waarde zal eerder markeren, maar het zal uw batterij verliezen en kan de app op oudere apparaten vertragen.</string>
     <string name="highlighting_enabled_or_not__appspecific">Controleren of ingevoerde tekst moet worden gemarkeerd of niet</string>
-    <string name="dynamic_highlighting_effect">Dynamische markering verhoogt de prestaties. Kan resulteren in het renderen van artefacten.</string>
     <string name="control_font_size_in_editor">Stel de lettergrootte in die gebruikt wordt in de bewerker</string>
     <string name="textactions_show_useful_actions_description__appspecific">Toon een balk met handige knoppen onderaan. Deze tekstacties wijzigen de tekst of voeren een actie uit op basis van de tekst.</string>
     <string name="load_last_opened_folder_at_startup">Laad de laatst geopende folder tijdens het opstarten</string>
@@ -220,6 +216,7 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="clipboard">Plakbord</string>
     <string name="select_existing_document">Selecteer bestaand document</string>
     <string name="select_create_document">Kies of maak document aan</string>
+    <string name="select_create_folder">Map selecteren of aanmaken</string>
     <string name="open_source_licenses">Open Source Licenties</string>
     <string name="rate_this_app">Beoordeel deze app</string>
     <string name="translate">Vertalen</string>
@@ -305,8 +302,6 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="black">Zwart</string>
     <string name="white">Wit</string>
     <string name="view">Bekijk</string>
-    <string name="view_mode">Bekijk modus</string>
-    <string name="edit_mode">Bewerk modus</string>
     <string name="mount_storage">Koppel opslag</string>
     <string name="application_needs_access_to_storage_mount_it">Toegang is vereist om deze opslag te kunnen gebruiken. Koppel de opslag om toegang te geven. Bevestig dit dialoogvenster om een pop-up te krijgen. Selecteer de opslag en druk op selecteer.</string>
     <string name="share_into">Delen in</string>
@@ -319,8 +314,6 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="selected_file_may_be_a_textfile_want_to_open_in_editor">Het geselecteerde bestand kan een platte tekst bestand zijn. Wil je het openen in de editor of in een andere app?\n\nProbeer niet binaire bestanden te openen. Als u niet zeker bent, open dan met een andere app.</string>
     <string name="list_in_recent_files">Lijst in recente bestanden</string>
     <string name="reload">Herladen</string>
-    <string name="wrap_words">Woorden weghalen</string>
-    <string name="line_numbers">Regelnummers</string>
     <string name="soft_break_if_not_fit_to_width_else_enable_horizontal_scrolling">Soft break als tekst niet past bij schermbreedte. Schakel horizontaal scrollen in.</string>
     <string name="recursive_search_in_location">Recursief zoeken in %s</string>
     <string name="always_open_with_this_app">Altijd open met deze app</string>
@@ -335,6 +328,7 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="current">Huidige</string>
     <string name="record_audio">Audio opnemen</string>
     <string name="attach">Bijvoegen</string>
+    <string name="attachment">Bijlage</string>
     <string name="copy_file">Bestand kopiëren</string>
     <string name="page">Pagina</string>
     <string name="experimental_features">Experimenteelte functies</string>
@@ -398,7 +392,6 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="file_description_format">Bestand beschrijving formaat</string>
     <string name="file_description_format_dialog">Formaat voor de beschrijving onder elk bestand in de browser. Volgt Android\'s SimpleDateFormaty-regels, met toevoeging van FS voor het tonen van bestandsgrootte. Laat leeg om het standaardformaat voor uw taal te gebruiken.\n\nVoorbeeld invoer:\nFS yyyy MMM dd hhh:mm:ss aa\nOutput formaat:\n30KB 2020 Mar 20 11:24:52 PM</string>
     <string name="loading_default_value">Standaardwaarde wordt geladen</string>
-    <string name="file_settings">Bestand instellingen</string>
     <string name="search_and_replace">Zoeken / vervangen</string>
     <string name="search_for">Zoeken naar</string>
     <string name="replace_with">Vervangen door</string>
@@ -460,9 +453,6 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="advanced_filtering_help"><![CDATA[<small><a href="https://www.github.com/gsantner/markor/discussions/1940">Geavanceerde filter-syntaxis</a></small>]]></string>
     <string name="filter">Filter</string>
     <string name="text_case">Hoofdlettergebruik</string>
-    <string name="toggle_case">Hoofdletters omwisselen (bijv: Case-&gt;CASE-&gt;case)</string>
-    <string name="switch_case">Afwisselende hoofdletters (bijv: CaSe-&gt;cAsE)</string>
-    <string name="capitalize_words">Begin elk woord met hoofdletter (bijv: a note-&gt;A Note)</string>
-    <string name="capitalize_sentences">Begin zinnen met hoofdletters (bijv: case-&gt;Case)</string>
     <string name="use_tab_to_indent">Regels inspringen met TAB-toets</string>
+    <string name="folder_local">Lokale mappen</string>
 </resources>

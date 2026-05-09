@@ -28,6 +28,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.annotation.ColorRes;
@@ -36,11 +37,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
-import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import net.gsantner.markor.R;
 import net.gsantner.opoc.frontend.GsSearchOrCustomTextDialog;
@@ -70,9 +67,10 @@ public class GsFileBrowserDialog extends DialogFragment implements GsFileBrowser
     private Toolbar _toolBar;
     private TextView _buttonCancel;
     private TextView _buttonOk;
-    private FloatingActionButton _homeButton;
-    private FloatingActionButton _buttonSearch;
-    private FloatingActionButton _buttonNewDir;
+    private TextView _buttonNeutral;
+    private ImageButton _homeButton;
+    private ImageButton _buttonSearch;
+    private ImageButton _buttonNewDir;
     private EditText _searchEdit;
 
     private GsFileBrowserListAdapter _filesystemViewerAdapter;
@@ -121,15 +119,24 @@ public class GsFileBrowserDialog extends DialogFragment implements GsFileBrowser
         _buttonNewDir = root.findViewById(R.id.ui__filesystem_dialog__new_dir);
         _buttonSearch = root.findViewById(R.id.ui__filesystem_dialog__search_button);
         _searchEdit = root.findViewById(R.id.ui__filesystem_dialog__search_edit);
+        _buttonNeutral = root.findViewById(R.id.ui__filesystem_dialog__button_neutral);
 
         _searchEdit.addTextChangedListener(GsTextWatcherAdapter.on(this::changeAdapterFilter));
-        for (final View v : new View[]{_homeButton, _buttonSearch, _buttonNewDir, _buttonCancel, _buttonOk}) {
+        for (final View v : new View[]{_homeButton, _buttonSearch, _buttonNewDir, _buttonCancel, _buttonOk, _buttonNeutral}) {
             v.setOnClickListener(this::onClicked);
         }
 
         if (_dopt == null || _buttonCancel == null) {
             dismiss();
             return;
+        }
+
+        _buttonNeutral.setTextColor(rcolor(_dopt.accentColor));
+        if (_dopt.neutralButtonText != 0) {
+            _buttonNeutral.setVisibility(View.VISIBLE);
+            _buttonNeutral.setText(_dopt.neutralButtonText);
+        } else {
+            _buttonNeutral.setVisibility(View.GONE);
         }
 
         _buttonCancel.setVisibility(_dopt.cancelButtonEnable ? View.VISIBLE : View.GONE);
@@ -144,6 +151,7 @@ public class GsFileBrowserDialog extends DialogFragment implements GsFileBrowser
         _toolBar.setTitle(_dopt.titleText);
         _toolBar.setSubtitleTextColor(rcolor(_dopt.secondaryTextColor));
         setSubtitleApprearance(_toolBar);
+        _toolBar.setBackgroundColor(rcolor(_dopt.primaryColor != 0 ? _dopt.primaryColor : R.color.primary));
 
         _homeButton.setImageResource(_dopt.homeButtonImage);
         _homeButton.setVisibility(_dopt.homeButtonEnable ? View.VISIBLE : View.GONE);
@@ -166,9 +174,8 @@ public class GsFileBrowserDialog extends DialogFragment implements GsFileBrowser
 
         root.setBackgroundColor(rcolor(_dopt.backgroundColor));
 
-        final LinearLayoutManager lam = (LinearLayoutManager) _recyclerList.getLayoutManager();
-        final DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(activity, lam.getOrientation());
-        _recyclerList.addItemDecoration(dividerItemDecoration);
+        GsFileBrowserFragment.addDivider(activity, _recyclerList);
+
         _recyclerList.setItemViewCacheSize(20);
 
         _filesystemViewerAdapter = new GsFileBrowserListAdapter(_dopt, activity);
@@ -177,6 +184,7 @@ public class GsFileBrowserDialog extends DialogFragment implements GsFileBrowser
         // Setup callbacks
         _dopt.setSubtitle = _toolBar::setSubtitle;
         _dopt.setTitle = _toolBar::setTitle;
+        _dopt.dialogInterface = getDialog();
 
         _recyclerList.post(() -> onFsViewerDoUiUpdate(_filesystemViewerAdapter));
     }
@@ -222,6 +230,10 @@ public class GsFileBrowserDialog extends DialogFragment implements GsFileBrowser
             }
             case R.id.ui__filesystem_dialog__new_dir: {
                 showNewDirDialog();
+                break;
+            }
+            case R.id.ui__filesystem_dialog__button_neutral: {
+                onFsViewerNeutralButtonPressed(_filesystemViewerAdapter.getCurrentFolder());
                 break;
             }
         }
@@ -307,6 +319,23 @@ public class GsFileBrowserDialog extends DialogFragment implements GsFileBrowser
     public void onFsViewerItemLongPressed(File file, boolean doSelectMultiple) {
         if (_callback != null) {
             _callback.onFsViewerItemLongPressed(file, doSelectMultiple);
+        }
+        if (_dopt.dismissAfterCallback) {
+            dismiss();
+        }
+    }
+
+    @Override
+    public void onFsViewerFolderLoad(File newFolder) {
+        if (_callback != null) {
+            _callback.onFsViewerFolderLoad(newFolder);
+        }
+    }
+
+    @Override
+    public void onFsViewerNeutralButtonPressed(final File currentFolder) {
+        if (_callback != null) {
+            _callback.onFsViewerNeutralButtonPressed(currentFolder);
         }
     }
 

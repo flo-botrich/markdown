@@ -122,7 +122,6 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="file_not_in_current_folder_do_copy__appspecific">該檔案不在目前的資料夾中。您要將它複製到現行的資料夾裡嗎？這將會覆寫任何已存在的同名檔案。</string>
     <string name="files_and_folders">檔案和資料夾</string>
     <string name="document_browser">文件瀏覽器</string>
-    <string name="file_browser">檔案瀏覽器</string>
     <string name="set_due_date">設定到期日</string>
     <string name="insert_replace_date">插入日期</string>
     <string name="create_note" needed="false">建立筆記</string>
@@ -138,12 +137,9 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="main_view">主頁</string>
     <string name="overall_theme_used_in_app">使用於程式整體的主題</string>
     <string name="remember_last_directory">記住最近使用的目錄</string>
-    <string name="syntax_highlighting">同步標記</string>
-    <string name="dynamic_highlighting">動態標記</string>
     <string name="highlighting_delay">標記延遲</string>
     <string name="highlighting_delay_lower_value_more_battery_drain_description__appspecific">延遲的閃亮標記以毫秒更新記時，較低值會提早開始標記，但會降低效能與耗電。</string>
     <string name="highlighting_enabled_or_not__appspecific">不管輸入的文字是否已標記都要調整</string>
-    <string name="dynamic_highlighting_effect">動態高亮增加性能，可能導致偽影。</string>
     <string name="control_font_size_in_editor">調整在編輯器中使用的字型</string>
     <string name="textactions_show_useful_actions_description__appspecific">在底部顯示工作列按鈕以快速修改輸入的內容或執行其他文字動作。</string>
     <string name="load_last_opened_folder_at_startup">啟動時開啟最後使用的資料夾</string>
@@ -154,7 +150,7 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="none">全無</string>
     <string name="other">其他</string>
     <string name="empty_file">空白檔案</string>
-    <string name="break_page_pdf_print">分頁（PDF／列印）</string>
+    <string name="break_page_pdf_print">分頁 (PDF/列印)</string>
     <string name="underline">底線</string>
     <string name="underline_hex_color_wether_or_not_to_description__appspecific">依顏色突顯Hex顏色碼</string>
     <string name="underline_hex_color_codes">突顯 Hex 顏色碼</string>
@@ -305,8 +301,6 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="black">黑色</string>
     <string name="white">白色</string>
     <string name="view">檢視</string>
-    <string name="view_mode">檢視模式</string>
-    <string name="edit_mode">編輯模式</string>
     <string name="mount_storage">掛載儲存裝置</string>
     <string name="application_needs_access_to_storage_mount_it">存取儲存空間需要權限，儲存空間掛載後才能存取；在跳出的對話框選擇儲存的位置，按下確認。</string>
     <string name="share_into">分享至</string>
@@ -319,8 +313,6 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="selected_file_may_be_a_textfile_want_to_open_in_editor">所選的檔案可能是純文字文件，您想用文字編輯器或是他程式開啟？\n\n執行檔案無法開啟，如果不確定，以其他程式開啟。</string>
     <string name="list_in_recent_files">最近開啟的文件列表</string>
     <string name="reload">重新下載</string>
-    <string name="wrap_words">文字斷行</string>
-    <string name="line_numbers">行號</string>
     <string name="soft_break_if_not_fit_to_width_else_enable_horizontal_scrolling">如果文字超過螢幕寬度時會自動換行。停用該功能則開啟水平捲動。</string>
     <string name="recursive_search_in_location">在 %s 中遞迴搜​​尋</string>
     <string name="always_open_with_this_app">總是使用此應用程式開啟</string>
@@ -398,7 +390,6 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="file_description_format">檔案加密格式</string>
     <string name="file_description_format_dialog">檔案瀏覽器中每個檔案下的描述格式。遵循 Android 的 SimpleDateFormat 規則，並且新增 FS 用於顯示檔案大小。留空以使用你所在地區的預設格式。\n\n輸入範例：\nFS yyyy MMM dd hh:mm:ss aa\n輸出格式：\n30KB 2020 Mar 20 11:24:52 PM</string>
     <string name="loading_default_value">正在載入預設值</string>
-    <string name="file_settings">檔案設定</string>
     <string name="search_and_replace">搜尋 / 取代</string>
     <string name="search_for">搜尋</string>
     <string name="replace_with">取代為</string>
@@ -459,4 +450,5 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="wont_save_min_length">為了防止資料遺失，不會自動儲存少於 %d 個字元的檔案。</string>
     <string name="advanced_filtering_help"><![CDATA[<small><a href="https://www.github.com/gsantner/markor/discussions/1940">進階過濾語法</a></small>]]></string>
     <string name="filter">過濾器</string>
+    <string name="text_case">文本大小寫</string>
 </resources>

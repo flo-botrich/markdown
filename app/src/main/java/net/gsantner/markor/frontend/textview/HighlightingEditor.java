@@ -28,19 +28,20 @@ import android.view.ViewTreeObserver;
 import android.view.accessibility.AccessibilityEvent;
 import android.widget.Toast;
 
+import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.widget.AppCompatEditText;
 
-import net.gsantner.markor.ApplicationObject;
 import net.gsantner.markor.R;
 import net.gsantner.markor.activity.MainActivity;
 import net.gsantner.markor.model.AppSettings;
-import net.gsantner.markor.util.TextCasingUtils;
 import net.gsantner.opoc.format.GsTextUtils;
 import net.gsantner.opoc.wrapper.GsCallback;
 import net.gsantner.opoc.wrapper.GsTextWatcherAdapter;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.SynchronousQueue;
@@ -60,7 +61,6 @@ public class HighlightingEditor extends AppCompatEditText {
     private boolean _accessibilityEnabled = true;
     private final boolean _isSpellingRedUnderline;
     private SyntaxHighlighterBase _hl;
-    private boolean _isDynamicHighlightingEnabled = true;
     private Runnable _hlDebounced;        // Debounced runnable which recomputes highlighting
     private boolean _hlEnabled;           // Whether highlighting is enabled
     private final Rect _oldHlRect;        // Rect highlighting was previously applied to
@@ -72,10 +72,12 @@ public class HighlightingEditor extends AppCompatEditText {
     private boolean _saveInstanceState = true;
     private final ExecutorService executor = new ThreadPoolExecutor(0, 3, 60, TimeUnit.SECONDS, new SynchronousQueue<>());
     private final AtomicBoolean _textUnchangedWhileHighlighting = new AtomicBoolean(true);
+    private int _textChangedNumber;
+    private final Runnable _textChangedRecorder = TextViewUtils.makeDebounced(getHandler(), 1000, () -> _textChangedNumber++);
 
     public HighlightingEditor(Context context, AttributeSet attrs) {
         super(context, attrs);
-        final AppSettings as = ApplicationObject.settings();
+        final AppSettings as = AppSettings.get(context);
 
         setAutoFormatters(null, null);
 
@@ -104,6 +106,7 @@ public class HighlightingEditor extends AppCompatEditText {
                 if (_hlEnabled && _hl != null && _hlDebounced != null) {
                     _hlDebounced.run();
                 }
+                _textChangedRecorder.run();
             }
         });
 
@@ -164,7 +167,7 @@ public class HighlightingEditor extends AppCompatEditText {
     // - we want to run isScrollSignificant after getLocalVisibleRect
     // - We don't care about the presence of spans or scroll significance if recompute is true
     private boolean runHighlight(final boolean recompute) {
-        return _hlEnabled && _hl != null && getLayout() != null &&
+        return _hl != null && getLayout() != null &&
                 (getLocalVisibleRect(_hlRect) || recompute) &&
                 (recompute || _hl.hasSpans()) &&
                 (recompute || isScrollSignificant());
@@ -179,8 +182,15 @@ public class HighlightingEditor extends AppCompatEditText {
     }
 
     public void recomputeHighlighting() {
-        if (runHighlight(true)) {
-            batch(() -> _hl.clearDynamic().clearStatic(false).recompute().applyStatic().applyDynamic(hlRegion()));
+        if (_hlEnabled && runHighlight(true)) {
+            batch(() -> _hl
+                    .clearDynamic()
+                    .clearStatic(false)
+                    .recompute()
+                    .addAdditional(_matches)
+                    .applyStatic()
+                    .applyDynamic(hlRegion())
+            );
         }
     }
 
@@ -191,7 +201,7 @@ public class HighlightingEditor extends AppCompatEditText {
      * 3. If the text did not change during computation, we apply the highlighting
      */
     private void recomputeHighlightingAsync() {
-        if (runHighlight(true)) {
+        if (_hlEnabled && runHighlight(true)) {
             try {
                 executor.execute(this::_recomputeHighlightingWorker);
             } catch (RejectedExecutionException ignored) {
@@ -204,18 +214,16 @@ public class HighlightingEditor extends AppCompatEditText {
         _hl.compute();
         post(() -> {
             if (_textUnchangedWhileHighlighting.get()) {
-                batch(() -> _hl.clearStatic(false).clearDynamic().setComputed().applyStatic().applyDynamic(hlRegion()));
+                batch(() -> _hl
+                        .clearStatic(false)
+                        .clearDynamic()
+                        .setComputed()
+                        .addAdditional(_matches)
+                        .applyStatic()
+                        .applyDynamic(hlRegion())
+                );
             }
         });
-    }
-
-    public void setDynamicHighlightingEnabled(final boolean enable) {
-        _isDynamicHighlightingEnabled = enable;
-        recomputeHighlighting();
-    }
-
-    public boolean isDynamicHighlightingEnabled() {
-        return _isDynamicHighlightingEnabled;
     }
 
     public void setHighlighter(final SyntaxHighlighterBase newHighlighter) {
@@ -261,7 +269,7 @@ public class HighlightingEditor extends AppCompatEditText {
         } else if (!enable && _hlEnabled) {
             _hlEnabled = false;
             if (_hl != null) {
-                _hl.clearDynamic().clearStatic(true);
+                _hl.clearDynamic().clearStatic(true).clearComputed();
             }
         }
         return prev;
@@ -269,19 +277,10 @@ public class HighlightingEditor extends AppCompatEditText {
 
     // Region to highlight
     private int[] hlRegion() {
-        if (_isDynamicHighlightingEnabled) {
-            final int hlSize = Math.round(HIGHLIGHT_REGION_SIZE * _hlRect.height()) + _hlShiftThreshold;
-            final int startY = _hlRect.centerY() - hlSize;
-            final int endY = _hlRect.centerY() + hlSize;
-            return new int[]{rowStart(startY), rowEnd(endY)};
-        } else {
-            return new int[]{0, length()};
-        }
-    }
-
-    @Override
-    public boolean bringPointIntoView(int i) {
-        return super.bringPointIntoView(i);
+        final int hlSize = Math.round(HIGHLIGHT_REGION_SIZE * _hlRect.height()) + _hlShiftThreshold;
+        final int startY = _hlRect.centerY() - hlSize;
+        final int endY = _hlRect.centerY() + hlSize;
+        return new int[]{rowStart(startY), rowEnd(endY)};
     }
 
     private int rowStart(final int y) {
@@ -292,6 +291,62 @@ public class HighlightingEditor extends AppCompatEditText {
     private int rowEnd(final int y) {
         final Layout layout = getLayout();
         return layout == null ? 0 : layout.getLineEnd(layout.getLineForVertical(y));
+    }
+
+    // Additional highlight for search / replace etc
+    // ---------------------------------------------------------------------------------------------
+
+    // for highlight text search matches/occurrences
+    private final List<SyntaxHighlighterBase.SpanGroup> _matches = new ArrayList<>();
+
+    public void setSearchMatches(List<SyntaxHighlighterBase.SpanGroup> spanGroups) {
+        if (_hl != null) {
+            _hl.clearAdditional(_matches);
+        }
+        _matches.clear();
+        if (spanGroups != null) {
+            _matches.addAll(spanGroups);
+        }
+        if (_hl != null) {
+            _hl.addAdditional(_matches);
+        }
+    }
+
+    public void removeSearchMatch(SyntaxHighlighterBase.SpanGroup spanGroup) {
+        if (_hl != null) {
+            _hl.clearDynamic().clearAdditional(spanGroup);
+        }
+        _matches.remove(spanGroup);
+    }
+
+    public void clearSearchMatches() {
+        if (_hl != null) {
+            _hl.clearDynamic().clearAdditional(_matches).applyDynamic(hlRegion());
+        }
+        _matches.clear();
+    }
+
+    public void applyDynamicHighlight() {
+        if (_hl != null) {
+            _hl.clearDynamic().applyDynamic(hlRegion());
+        }
+    }
+
+    // for highlight find-in-selection region
+    private SyntaxHighlighterBase.SpanGroup _searchSelection = null;
+
+    public void addSearchSelection(final int start, final int end, final @ColorInt int color) {
+        _searchSelection = SyntaxHighlighterBase.createBackgroundHighlight(start, end, color);
+        if (_hl != null) {
+            _hl.addAdditional(_searchSelection);
+        }
+    }
+
+    public void clearSearchSelection() {
+        if (_hl != null) {
+            _hl.clearDynamic().clearAdditional(_searchSelection);
+            _searchSelection = null;
+        }
     }
 
     // Various overrides
@@ -335,7 +390,7 @@ public class HighlightingEditor extends AppCompatEditText {
 
     @Override
     public boolean onTextContextMenuItem(int id) {
-        // Copy-paste fix by bad richtext pasting - example text from code at https://plantuml.com/activity-diagram-beta
+        // Copy-paste fix by bad rich-text pasting - example text from code at https://plantuml.com/activity-diagram-beta
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && id == android.R.id.paste) {
             id = android.R.id.pasteAsPlainText;
         }
@@ -399,6 +454,12 @@ public class HighlightingEditor extends AppCompatEditText {
         }
     }
 
+    @Override
+    protected void onMeasure(final int widthMeasureSpec, final int heightMeasureSpec) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+    }
+
+
     // Auto-format
     // ---------------------------------------------------------------------------------------------
 
@@ -416,14 +477,15 @@ public class HighlightingEditor extends AppCompatEditText {
 
     public void setAutoFormatEnabled(final boolean enable) {
         if (enable && !_autoFormatEnabled) {
-            if (_autoFormatFilter != null) {
-                setFilters(new InputFilter[]{_autoFormatFilter});
-            }
+            TextViewUtils.addFilter(this, _autoFormatFilter);
+
             if (_autoFormatModifier != null) {
                 addTextChangedListener(_autoFormatModifier);
             }
+
         } else if (!enable && _autoFormatEnabled) {
-            setFilters(new InputFilter[]{});
+            TextViewUtils.removeFilter(this, _autoFormatFilter);
+
             if (_autoFormatModifier != null) {
                 removeTextChangedListener(_autoFormatModifier);
             }
@@ -522,13 +584,11 @@ public class HighlightingEditor extends AppCompatEditText {
 
             @Override
             public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-                switch (item.getItemId()) {
-                    case R.string.option_select_lines:
-                        HighlightingEditor.this.selectLines();
-                        return true;
-                    default:
-                        return false;
+                if (item.getItemId() == R.string.option_select_lines) {
+                    HighlightingEditor.this.selectLines();
+                    return true;
                 }
+                return false;
             }
 
             @Override
@@ -536,5 +596,16 @@ public class HighlightingEditor extends AppCompatEditText {
                 // Cleanup if needed
             }
         });
+    }
+
+    /**
+     * Get a number representing the current text changed state.
+     * This number will increase by 1 every time the text is changed.
+     * This is lighter weight than hash to represent text changed state.
+     *
+     * @return the number representing text last changed state, update time error within 1000ms.
+     */
+    public int getTextChangedNumber() {
+        return _textChangedNumber;
     }
 }

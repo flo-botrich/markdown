@@ -49,8 +49,10 @@ Where:
 * **[Frederic Jacob](https://github.com/fredericjacob)**<br/>~° Added Zim-Wiki highlighting, text actions, view mode, page creation
 * **[Winston Feng](https://github.com/tifish)**<br/>~° Support spaces in URL
 * **[k3b](https://github.com/k3b)**<br/>~° Added CSV-Support
-* **[Li Guanglin](https://github.com/guanglinn)**<br/>~° Added line numbers support
+* **[Li Guanglin](https://github.com/guanglinn)**<br/>~° Added support for line numbers
 * **[bigger124](https://github.com/bigger124)**<br>~° Added OrgMode-Support
 * **[Ayowel](https://github.com/ayowel)**<br>~° Mermaid update
 * **[Matthew White](https://github.com/mehw)**<br>~° Zim-Wiki link/attachment conformance
 * **[Markus Paintner](https://github.com/goli4thus)**<br/>~° Added duplicate lines action
+* **[Janez Pavel Žebovec](https://janezpavelzebovec.net/)**<br/>~° Slovenian translation
+* **[Stephen Karl Larroque](https://github.com/lrq3000/)**<br/>~° Bugfixes
