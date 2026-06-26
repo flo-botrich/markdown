@@ -176,19 +176,7 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="sort_tasks_by_selected_order">Görevleri seçilen düzene göre sırala</string>
     <string name="special_key">Özel Tuş</string>
     <string name="asciidoc_special_key">Özel AsciiDoc İçeriği</string>
-    <string name="key_page_up">Sayfa Yukarı (Page Up)</string>
-    <string name="key_page_down">Sayfa Aşağı (Page Down)</string>
-    <string name="key_pos_1">Satır Başlangıcı (Pos Home)</string>
-    <string name="key_pos_end">Satır Sonu (Pos End)</string>
-    <string name="key_pos_1_document">Belge Başlangıcı</string>
-    <string name="key_pos_end_document">Belge Sonu</string>
-    <string name="move_text_one_line_up">Satırı yukarı taşı</string>
-    <string name="move_text_one_line_down">Satırı aşağı taşı</string>
-    <string name="start_new_line_below">Yeni satıra başla</string>
-    <string name="select_current_line">Şu anki satırı seç</string>
     <string name="key_ctrl_a">Tümünü seç (Ctrl + A)</string>
-    <string name="key_tab">Tabulator</string>
-    <string name="zero_width_space">Genişliksiz boşluk</string>
     <string name="em_space">Em boşluğu (&amp;emsp;)</string>
     <string name="start_on_bottom">Alttan başla</string>
     <string name="start_on_bottom_when_loading_document">Bir belge yüklendikten sonra, İmleci belge sonuna yerleştir.</string>
@@ -216,6 +204,7 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="center_text">Metni ortala</string>
     <string name="edit_text_in_center_of_screen">Metni ekranın ortasında düzenleyin</string>
     <string name="clipboard">Pano</string>
+    <string name="link_copied">Link kopyalandı!</string>
     <string name="select_existing_document">Mevcut belegeyi seç</string>
     <string name="select_create_document">Dosya seç ya da oluştur</string>
     <string name="select_create_folder">Klasör seçin veya oluşturun</string>
@@ -304,6 +293,8 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="black">Siyah</string>
     <string name="white">Beyaz</string>
     <string name="view">Görünüm</string>
+    <string name="view_mode"></string>
+    <string name="edit_mode">Düzenleme</string>
     <string name="mount_storage">Depolama bağla</string>
     <string name="application_needs_access_to_storage_mount_it">Bu depolamaya erişmek için izin gerekli. Erişimi sağlamak için depolamayı bağlayın. Bir açılır pencere almak için bu iletişim kutusunu onaylayın. Oradaki depolamayı seçin ve seç tuşuna basın.</string>
     <string name="share_into">İçine paylaş</string>
@@ -381,6 +372,8 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="load_default_settings">Varsayılan ayarları yükle</string>
     <string name="drag">Sürükle</string>
     <string name="created">Oluşturuldu</string>
+    <string name="no_results">Sonuç yok</string>
+    <string name="use_regular_expression">Düzenli ifade kullan</string>
     <string name="file_encryption_password">Dosya şifreleme parolası</string>
     <string name="no_password_set_cannot_encrypt_decrypt">Parola ayarlanmadı, şifrelenemiyor veya şifre çözülemiyor.\nParola ayarlamak için Ayarlar -&gt; Genel -&gt; Parola menüsüne gidin.</string>
     <string name="encrypt_file_content">Dosya içeriğini şifrele</string>
